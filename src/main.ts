@@ -4,8 +4,8 @@ import { setupGlobalConfig } from './common/config/global.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  setupGlobalConfig(app)
   await app.listen(3000);
 
-  setupGlobalConfig(app)
 }
 bootstrap();

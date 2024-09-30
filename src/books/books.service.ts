@@ -11,24 +11,43 @@ export class BooksService {
   constructor(
     @InjectRepository(Book) private bookRepository: Repository<Book>
   ) {}
+
   async create(createBookDto: CreateBookDto) {
     const newBook = this.bookRepository.create( createBookDto)
     return this.bookRepository.save(newBook);
   }
 
-  findAll() {
-    return `This action returns all books`;
+  async findAll() {
+    const books = await this.bookRepository.find();
+    if (books.length === 0) {
+      return { message: 'No books found', data: [], status: 404 };
+    }
+    return books;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} book`;
+  async findOne(id: number) {
+    const book = await this.bookRepository.findOne({ where: { id } });
+    if (!book) {
+      return { message: 'Book not found', data: null, status: 404 };
+    }
+    return book;
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
+  async update(id: number, updateBookDto: UpdateBookDto) {
+    const book = await this.bookRepository.findOne({ where: { id } });
+    if(!book) {
+      return { message: 'Book not found', data: null, status: 404 };
+    }
+    const updatedBook = Object.assign(book, updateBookDto);
+    return this.bookRepository.save(updatedBook);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} book`;
+  async remove(id: number) {
+    const book = await this.bookRepository.findOne({ where: { id } });
+    if (!book) {
+      return { message: 'Book not found', data: null, status: 404 };
+    }
+    await this.bookRepository.delete(book);
+    return { message: 'Book deleted', data: null, status: 200 };
   }
 }
